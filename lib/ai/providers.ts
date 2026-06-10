@@ -1357,6 +1357,23 @@ export function getModel(config: ModelConfig): ModelWithInfo {
             (providerId === 'lemonade'
               ? getDefaultThinkingConfig(getCatalogThinkingCapability(providerId, config.modelId))
               : undefined);
+          if (providerId === 'lemonade' && init?.body && typeof init.body === 'string') {
+            try {
+              const body = JSON.parse(init.body);
+
+              if ('stream_options' in body) {
+                delete body.stream_options;
+              }
+              Object.keys(body).forEach(key => {
+                  if (body[key] === undefined) delete body[key];
+              });
+
+              init = {
+                ...init,
+                body: JSON.stringify(body),
+              };
+            } catch {}
+          }
           if (thinking && init?.body && typeof init.body === 'string') {
             const extra = getCompatThinkingBodyParams(providerId, config.modelId, thinking);
             if (extra) {
